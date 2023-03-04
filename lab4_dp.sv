@@ -5,6 +5,15 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
 // TODO: ... 
 // TODO: input logic 	      clk, // clock signal 
 // TODO: input logic 	      rst           // reset
+
+   output logic [7:0]   encryptByte;   // encrypted byte output
+
+   input logic [7:0] plainByte;        // input for fifo from lab4.sv
+   input logic validIn;                // input for fifo from lab4.sv
+
+   input logic          clk;           // clock signal
+   input logic          rst;           // reset
+
    );
    
    //
@@ -41,12 +50,12 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    logic [7:0] 		       fInPlainByte;  // data from the input fifo
  		       
    fifo fm (
-	    .rdDat(fInPlainByte),             // data from the FIFO
-	    .valid(fInValid),                 // there is valid data from the FIFO
-	    .wrDat(plainByte),                // data into the FIFO
-	    .push(validIn),                   // data into the fifo is valid
-	    .pop(getNext),                    // read the next entry from the fifo
-	    .clk(clk), .rst(rst));
+	    .rdDat(fInPlainByte),              // data from the FIFO                        --- output
+	    .valid(fInValid),                  // there is valid data from the FIFO         --- output
+	    .wrDat(plainByte),                 // data into the FIFO                        --- input from lab4.sv
+	    .push(validIn),                    // data into the fifo is valid               --- input from lab4.sv
+	    .pop(getNext),                     // read the next entry from the fifo         --- ???
+	    .clk(clk), .rst(rst));             //                                           --- clk / rst signals
    
    // TODO: detect preambleDone
    
@@ -57,12 +66,12 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    dat_mem dm1(.raddr, .data_out);
 
    // instantiate the lfsr
-   lfsr5 l5(.clk, 
-            .en(lfsr_en),          // advance LFSR on rising clk
-            .init(load_LFSR),	   // initialize LFSR
-            .taps, 		   // tap pattern
-            .start, 		   // starting state for LFSR
-            .state(LFSR));	   // LFSR state = LFSR output 
+   lfsr5 l5(.clk(clk), 
+            .en(lfsr_en),          // advance LFSR on rising clk                       --- starter
+            .init(load_LFSR),	   // initialize LFSR                                    --- starter
+            .taps, 		   // tap pattern                                              --- no idea -> .data_out ? 
+            .start, 		   // starting state for LFSR                                  --- no idea
+            .state(LFSR));	   // LFSR state = LFSR output                              --- starter
    
    
    // TODO: write an expression for encryptByte

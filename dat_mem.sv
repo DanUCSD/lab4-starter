@@ -4,7 +4,7 @@
 // ROM
 // $clog2(N) = ceiling (log2(N)) -- use to determine pointer width needed
 // two-dimensional array
-// defult size = 8 bits wide x 16 words deep, 
+// default size = 8 bits wide x 16 words deep, 
 //   where each word is one byte wide, in this case 
 // writes are clocked/sequential; reads are combinational
 module dat_mem #(parameter W=8, byte_count=16)(

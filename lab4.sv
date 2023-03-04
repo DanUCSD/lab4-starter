@@ -5,7 +5,7 @@
 module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
     output logic [7:0] encryptByte,   // encrypted byte
     output logic       validOut,      // encrypted byte is valid
-    input logic        validIn,   // plainByte is valid
+    input logic        validIn,   // plainByte is valid                          --- high when plainByte represents a byte from input strean.
     input logic [7:0]  plainByte, // byte to be encrypted
     input logic	       clk, 
 		       encRqst,   // incoming encryption request
@@ -27,7 +27,12 @@ module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
    // that port will connect to a wire called taps_en.  This is the same thing as saying
    // .taps_en(taps_en)  but a lot more concise.
    // 
-   lab4_dp dp (.*);
+   lab4_dp dp (//.*                       --- first few, still need to figure out more
+      .encryptByte(encryptByte),
+      .plainByte(plainByte),
+      .validIn(validIn),
+      .clk(clk), rst(rst)
+   );
    
    //
    // control
