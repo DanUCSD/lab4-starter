@@ -9,13 +9,16 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    output logic [7:0]   encryptByte;   // encrypted byte output
    output logic         taps_en;       // suggested in lab4.sv
    output logic         seed_en;       // guess
-   output logic         preambleDone;      // guess
+   output logic         preambleDone;  // guess
 
+   input logic          prelenen;      // output from seqsm.sv
    input logic [7:0]    plainByte;     // input for fifo from lab4.sv
    input logic          validIn;       // input for fifo from lab4.sv
    input logic [AW-1:0] raddr;         // controlling raddr diretly in seqsm.sv
    input logic          lfsr_en;       // controlling from init_lfsr in seqsm.sv
    input logic          incByteCount;
+
+   input logic          getNext;       // input from lab4
 
    input logic          clk;           // clock signal
    input logic          rst;           // reset
@@ -64,15 +67,13 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
 	    .valid(fInValid),                  // there is valid data from the FIFO         --- output
 	    .wrDat(plainByte),                 // data into the FIFO                        --- input from lab4.sv
 	    .push(validIn),                    // data into the fifo is valid               --- input from lab4.sv
-	    .pop(getNext),                     // read the next entry from the fifo         --- ???
+	    .pop(getNext),                     // read the next entry from the fifo         --- enabler for inc add seqsm
 	    .clk(clk), .rst(rst));             //                                           --- clk / rst signals
    
    // TODO: detect preambleDone
-   logic preambleDone;
-   preambleDone = fInValid;
-   
-   // TODO: detect packet end (i.e. 32 bytes have been processed)
+   assign preambleDone = preambleLength == byteCount;
 
+   // TODO: detect packet end (i.e. 32 bytes have been processed)
 
    // instantiate the ROM
    dat_mem dm1(.raddr(raddr), .data_out(data_out));

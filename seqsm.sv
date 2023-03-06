@@ -1,12 +1,15 @@
 module seqsm 
    (
 // TODO: define your outputs and inputs
-   output [3:0] raddr;
+//   output [3:0] raddr;
+   output incadd;
    output lfsr_en;
    output incByteCount;
+   output prelenen;
+   output taps_en;
 
-   input taps_en;
    input preambleDone;
+   input encRqst;
 
    input logic clk,
    input logic rst
@@ -21,7 +24,7 @@ module seqsm
    // TODO:		 ProcessPreamble, Encrypt, Done
    // TODO:		 } states_t;
    // TODO: for example
-   // TODO:  1: Idle -> 
+   // TODO:  1: Idle -> encrypt request input. 
    // TODO:  2: LoadPreamble (read the preamble from the ROM and capture it in some registers) ->
    // TODO:  3: LoadTaps (read the taps from the ROM and capture it in some registers) ->
    // TODO:  4: LoadSeed (read the seed from the ROM and capture it in some registers) ->
@@ -69,35 +72,60 @@ module seqsm
       unique case (curState) 
 
          Idle: begin
-            nxtState = LoadPreamble;
+            if (encRqst) begin
+               nxtState  = LoadPreamble;
+            end else begin
+               nxtState = Idle;
+            end
+
+
+//            nxtState = encRqst ? LoadPreamble : ;
          end
 
          LoadPreamble: begin
-            nxtState = taps_en ? LoadTaps : curState;
+            prelenen = 1;
+            incadd = 1;
+            nxtState = LoadTaps;
          end
 
          LoadTaps: begin
-
+            incadd = 1;
+            taps_en = 1;
+            nxtState = LoadSeed;
          end
 
          LoadSeed: begin
-         
+            seed_en = 1;
+            nxtState = InitLFSR;
          end
 
          InitLFSR: begin
-            lfsr_en = 1;
+            load_LFSR = 1;
+            nxtState = ProcessPreamble;
          end
 
          ProcessPreamble: begin
             incByteCount = 1;
+            getNext = 1;
+            if (fInValid) begin          
+               // do something turn on enable  signals
+                           lfsr_en = 1;
+               // 3 more signals, similar in encrypt.
+            end 
+            if (preambleDone) begin
+               nxtState = Encrypt;       // if preambledone
+            end else begin
+               nxtState = ProcessPreamble;          // else stay in state
+            end
          end
 
-         Encrypt: begin
-
+         Encrypt: begin // same thing as above but  different signals -> preambleDone (messageDone)
+            getNext =  1;
+            lfsr_en = 1;
          end
 
          Done: begin
-
+            
          end
 
       endcase

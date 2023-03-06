@@ -20,12 +20,13 @@ module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
    // TODO: for example, if your datapath has an output taps_en.
    // TODO: wire taps_en;  // load the taps
 
-   logic taps_en;
-   logic lfsr_en;
-   logic [3:0] raddr;
-   logic preambleDone;
-   logic incByteCount;
-   
+   logic taps_en;          // dp       ->    seqsm
+   logic lfsr_en;          // seqsm    ->    dp
+   logic [3:0] raddr;      // seqsm    ->    dp
+   logic preambleDone;     // dp       ->    seqsm
+   logic incByteCount;     // seqsm    ->    dp
+   logic prelenen;         // seqsm    ->    dp
+   logic getNext;          // seqsm    ->    dp
    //
    // datapath
    // This instantiates your datapath block. the .* says that all the ports on your block connect to wires
@@ -33,8 +34,7 @@ module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
    // that port will connect to a wire called taps_en.  This is the same thing as saying
    // .taps_en(taps_en)  but a lot more concise.
    // 
-   lab4_dp dp (.*                       //--- first few, still need to figure out more
-   );
+   lab4_dp dp (.*);
    
    //
    // control
