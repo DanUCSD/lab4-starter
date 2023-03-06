@@ -9,12 +9,13 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    output logic [7:0]   encryptByte;   // encrypted byte output
    output logic         taps_en;       // suggested in lab4.sv
    output logic         seed_en;       // guess
-   output logic         fInValid;      // guess
+   output logic         preambleDone;      // guess
 
    input logic [7:0]    plainByte;     // input for fifo from lab4.sv
    input logic          validIn;       // input for fifo from lab4.sv
    input logic [AW-1:0] raddr;         // controlling raddr diretly in seqsm.sv
    input logic          lfsr_en;       // controlling from init_lfsr in seqsm.sv
+   input logic          incByteCount;
 
    input logic          clk;           // clock signal
    input logic          rst;           // reset
@@ -67,6 +68,8 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
 	    .clk(clk), .rst(rst));             //                                           --- clk / rst signals
    
    // TODO: detect preambleDone
+   logic preambleDone;
+   preambleDone = fInValid;
    
    // TODO: detect packet end (i.e. 32 bytes have been processed)
 

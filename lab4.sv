@@ -23,6 +23,8 @@ module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
    logic taps_en;
    logic lfsr_en;
    logic [3:0] raddr;
+   logic preambleDone;
+   logic incByteCount;
    
    //
    // datapath

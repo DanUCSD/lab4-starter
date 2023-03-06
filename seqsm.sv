@@ -3,8 +3,10 @@ module seqsm
 // TODO: define your outputs and inputs
    output [3:0] raddr;
    output lfsr_en;
+   output incByteCount;
 
    input taps_en;
+   input preambleDone;
 
    input logic clk,
    input logic rst
@@ -87,7 +89,7 @@ module seqsm
          end
 
          ProcessPreamble: begin
-
+            incByteCount = 1;
          end
 
          Encrypt: begin
