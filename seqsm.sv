@@ -1,9 +1,14 @@
 module seqsm 
    (
 // TODO: define your outputs and inputs
-    input logic clk,
-    input logic rst
-    );
+   output [3:0] raddr;
+   output lfsr_en;
+
+   input taps_en;
+
+   input logic clk,
+   input logic rst
+   );
 
 
    // TODO: define your states
@@ -19,7 +24,7 @@ module seqsm
    // TODO:  3: LoadTaps (read the taps from the ROM and capture it in some registers) ->
    // TODO:  4: LoadSeed (read the seed from the ROM and capture it in some registers) ->
    // TODO:  5: InitLFSR (load the LFSR with the taps and seed) ->
-   // TODO:  6: ProcessPremble (encrypt preamble until byteCount is the same as preamble length) ->
+   // TODO:  6: ProcessPreamble (encrypt preamble until byteCount is the same as preamble length) ->
    // TODO:  7: Encrypt rest of packet until byteCount == 32 (max packet length)
    // TODO:  8: Done
    // TODO:
@@ -33,4 +38,69 @@ module seqsm
    // TODO: always_comb begin
    // TODO:     . . .
    // TODO: end
+
+   typedef enum {
+                 Idle, LoadPreamble, LoadTaps, LoadSeed, InitLFSR,
+                 ProcessPreamble, Encrypt, Done } state_t;
+   
+   state_t curState;
+   state_t nxtState;
+
+   always_ff @(posedge clk)
+     begin
+       if (rst)
+         curState <= Idle;
+       else
+         curState <= nxtState;
+     end 
+
+   always_comb begin
+      /*
+
+      some default values 
+
+      */
+
+      raddr = 4'b000;
+      lfsr_en = 0;
+
+      unique case (curState) 
+
+         Idle: begin
+            nxtState = LoadPreamble;
+         end
+
+         LoadPreamble: begin
+            nxtState = taps_en ? LoadTaps : curState;
+         end
+
+         LoadTaps: begin
+
+         end
+
+         LoadSeed: begin
+         
+         end
+
+         InitLFSR: begin
+            lfsr_en = 1;
+         end
+
+         ProcessPreamble: begin
+
+         end
+
+         Encrypt: begin
+
+         end
+
+         Done: begin
+
+         end
+
+      endcase
+   end
+
+
+
 endmodule // seqsm

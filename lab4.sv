@@ -19,6 +19,10 @@ module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
    // TODO: you can use the "logic" type or "wire" type
    // TODO: for example, if your datapath has an output taps_en.
    // TODO: wire taps_en;  // load the taps
+
+   logic taps_en;
+   logic lfsr_en;
+   logic [3:0] raddr;
    
    //
    // datapath
@@ -27,11 +31,7 @@ module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
    // that port will connect to a wire called taps_en.  This is the same thing as saying
    // .taps_en(taps_en)  but a lot more concise.
    // 
-   lab4_dp dp (//.*                       --- first few, still need to figure out more
-      .encryptByte(encryptByte),
-      .plainByte(plainByte),
-      .validIn(validIn),
-      .clk(clk), rst(rst)
+   lab4_dp dp (.*                       //--- first few, still need to figure out more
    );
    
    //

@@ -3,13 +3,18 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
 // TODO: for example							 
 // TODO: output logic [7:0] encryptByte, // encrypted byte output
 // TODO: ... 
-// TODO: input logic 	      clk, // clock signal 
-// TODO: input logic 	      rst           // reset
+// TODO: input logic 	      clk,     // clock signal 
+// TODO: input logic 	      rst      // reset
 
    output logic [7:0]   encryptByte;   // encrypted byte output
+   output logic         taps_en;       // suggested in lab4.sv
+   output logic         seed_en;       // guess
+   output logic         fInValid;      // guess
 
-   input logic [7:0] plainByte;        // input for fifo from lab4.sv
-   input logic validIn;                // input for fifo from lab4.sv
+   input logic [7:0]    plainByte;     // input for fifo from lab4.sv
+   input logic          validIn;       // input for fifo from lab4.sv
+   input logic [AW-1:0] raddr;         // controlling raddr diretly in seqsm.sv
+   input logic          lfsr_en;       // controlling from init_lfsr in seqsm.sv
 
    input logic          clk;           // clock signal
    input logic          rst;           // reset
@@ -29,13 +34,17 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    // TODO: logic [lfsr_bitwidth-1:0] LFSR;            // LFSR current value            
    //
 
+   logic [lfsr_bitwidth-1:0] taps;       // LFSR feedback pattern temp register
+   logic [lfsr_bitwidth-1:0] LFSR;            // LFSR current value    
+   logic [3:0] preambleLength;
+   logic [4:0] start_LFSR;
 
 
-   logic [AW-1:0] 	       raddr;    // memory read address
+//   logic [AW-1:0] 	       raddr;    // memory read address
    
    // TODO: control the raddr
    // TODO: there are many ways you can do this.
-   // TODO: one way is to have a counter here to count 0, 1, 2 and control this coutner
+   // TODO: one way is to have a counter here to count 0, 1, 2 and control this counter
    // TODO: from your state machine
    // TODO: another is to have raddr be the output of mux where you control the mux from your
    // TODO: state machine and the mux selects 0, 1 or 2.
@@ -63,14 +72,14 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
 
 
    // instantiate the ROM
-   dat_mem dm1(.raddr, .data_out);
+   dat_mem dm1(.raddr(raddr), .data_out(data_out));
 
    // instantiate the lfsr
    lfsr5 l5(.clk(clk), 
             .en(lfsr_en),          // advance LFSR on rising clk                       --- starter
             .init(load_LFSR),	   // initialize LFSR                                    --- starter
-            .taps, 		   // tap pattern                                              --- no idea -> .data_out ? 
-            .start, 		   // starting state for LFSR                                  --- no idea
+            .taps(taps), 		   // tap pattern                                        --- data_out when raddr = 1
+            .start(start_LFSR), 		   // starting state for LFSR                      --- data_out when raddr = 2
             .state(LFSR));	   // LFSR state = LFSR output                              --- starter
    
    
@@ -81,6 +90,12 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    always_ff @(posedge clk) begin
       
       // TODO: capture preamble length, taps, and seed that you read from the ROM
+
+      case (raddr)
+         0: preambleLength = data_out;
+         1: taps = data_out;
+         2: seed = data_out;
+      endcase
 
    end
 
