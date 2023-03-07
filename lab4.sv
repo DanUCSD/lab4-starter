@@ -27,6 +27,12 @@ module lab4 #(parameter DW=8, AW=8, byte_count=2**AW, lfsr_bitwidth=5)(
    logic incByteCount;     // seqsm    ->    dp
    logic prelenen;         // seqsm    ->    dp
    logic getNext;          // seqsm    ->    dp
+   logic byteCount;        // dp       ->    seqsm
+   logic seed_en;
+   logic incadd;
+   logic load_LFSR;
+   logic fInValid;
+
    //
    // datapath
    // This instantiates your datapath block. the .* says that all the ports on your block connect to wires

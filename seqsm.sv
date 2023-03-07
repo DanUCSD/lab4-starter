@@ -2,14 +2,19 @@ module seqsm
    (
 // TODO: define your outputs and inputs
 //   output [3:0] raddr;
-   output incadd;
-   output lfsr_en;
-   output incByteCount;
-   output prelenen;
-   output taps_en;
+   output logic incadd,
+   output logic lfsr_en,
+   output logic incByteCount,
+   output logic prelenen,
+   output logic taps_en,
+   output logic seed_en,
+   output logic load_LFSR,
+   output logic getNext,
 
-   input preambleDone;
-   input encRqst;
+   input logic byteCount,
+   input logic fInValid,
+   input logic preambleDone,
+   input logic encRqst,
 
    input logic clk,
    input logic rst
@@ -60,14 +65,6 @@ module seqsm
      end 
 
    always_comb begin
-      /*
-
-      some default values 
-
-      */
-
-      raddr = 4'b000;
-      lfsr_en = 0;
 
       unique case (curState) 
 
@@ -77,9 +74,6 @@ module seqsm
             end else begin
                nxtState = Idle;
             end
-
-
-//            nxtState = encRqst ? LoadPreamble : ;
          end
 
          LoadPreamble: begin

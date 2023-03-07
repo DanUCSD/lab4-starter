@@ -6,22 +6,23 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
 // TODO: input logic 	      clk,     // clock signal 
 // TODO: input logic 	      rst      // reset
 
-   output logic [7:0]   encryptByte;   // encrypted byte output
-   output logic         taps_en;       // suggested in lab4.sv
-   output logic         seed_en;       // guess
-   output logic         preambleDone;  // guess
+   output logic [7:0]   encryptByte,   // encrypted byte output
+   output logic         preambleDone,  // guess
+   output logic         byteCount,
 
-   input logic          prelenen;      // output from seqsm.sv
-   input logic [7:0]    plainByte;     // input for fifo from lab4.sv
-   input logic          validIn;       // input for fifo from lab4.sv
-   input logic [AW-1:0] raddr;         // controlling raddr diretly in seqsm.sv
-   input logic          lfsr_en;       // controlling from init_lfsr in seqsm.sv
-   input logic          incByteCount;
+   input logic          seed_en,       // guess
+   input logic          taps_en,       // suggested in lab4.sv
+   input logic          prelenen,      // output from seqsm.sv
+   input logic [7:0]    plainByte,     // input for fifo from lab4.sv
+   input logic          validIn,       // input for fifo from lab4.sv
+   input logic [AW-1:0] raddr,         // controlling raddr diretly in seqsm.sv
+   input logic          lfsr_en,       // controlling from init_lfsr in seqsm.sv
+   input logic          incByteCount,
 
-   input logic          getNext;       // input from lab4
+   input logic          getNext,       // input from lab4
 
-   input logic          clk;           // clock signal
-   input logic          rst;           // reset
+   input logic          clk,           // clock signal
+   input logic          rst            // reset
 
    );
    
@@ -42,7 +43,7 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    logic [lfsr_bitwidth-1:0] LFSR;            // LFSR current value    
    logic [3:0] preambleLength;
    logic [4:0] start_LFSR;
-
+   logic seed;
 
 //   logic [AW-1:0] 	       raddr;    // memory read address
    
