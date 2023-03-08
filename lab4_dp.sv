@@ -9,6 +9,7 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    output logic [7:0]   encryptByte,   // encrypted byte output
    output logic         preambleDone,  // guess
    output logic         byteCount,
+   output logic         fInValid;   
 
    input logic          seed_en,       // guess
    input logic          taps_en,       // suggested in lab4.sv
@@ -19,8 +20,9 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    input logic          lfsr_en,       // controlling from init_lfsr in seqsm.sv
    input logic          incByteCount,
    input logic          load_LFSR,
-
+   input logic          incadd;
    input logic          getNext,       // input from lab4
+
 
    input logic          clk,           // clock signal
    input logic          rst            // reset
