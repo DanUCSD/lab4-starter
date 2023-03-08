@@ -18,6 +18,7 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    input logic [AW-1:0] raddr,         // controlling raddr diretly in seqsm.sv
    input logic          lfsr_en,       // controlling from init_lfsr in seqsm.sv
    input logic          incByteCount,
+   input logic          load_LFSR,
 
    input logic          getNext,       // input from lab4
 
