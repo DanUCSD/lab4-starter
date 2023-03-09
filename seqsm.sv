@@ -11,6 +11,7 @@ module seqsm
    output logic load_LFSR,
    output logic getNext,
    output logic done,
+   output logic validOut;
 
    input logic byteCount,
    input logic fInValid,
@@ -68,6 +69,8 @@ module seqsm
 
    always_comb begin
 
+      validOut = 0;
+
       unique case (curState) 
 
          Idle: begin
@@ -107,6 +110,7 @@ module seqsm
                incByteCount = 1;
                getNext = 1;
                lfsr_en = 1;
+               validOut = 1;
                // 3 more signals, similar in encrypt.
             end 
             if (preambleDone) begin
@@ -121,6 +125,7 @@ module seqsm
                incByteCount = 1;
                getNext = 1;
                lfsr_en = 1;
+               validOut = 1;
             end 
             if (messageDone) begin
                nxtState = Done;       // if preambleDone
