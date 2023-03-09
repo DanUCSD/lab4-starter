@@ -17,7 +17,6 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    input logic          prelenen,      // output from seqsm.sv
    input logic [7:0]    plainByte,     // input for fifo from lab4.sv
    input logic          validIn,       // input for fifo from lab4.sv
-   input logic [AW-1:0] raddr,         // controlling raddr diretly in seqsm.sv
    input logic          lfsr_en,       // controlling from init_lfsr in seqsm.sv
    input logic          incByteCount,
    input logic          load_LFSR,
@@ -48,8 +47,6 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    logic [3:0] preambleLength;
    logic [4:0] start_LFSR;
    logic seed;
-   logic preambleDone;
-   logic messageDone;
 
    logic [AW-1:0] 	       raddr;    // memory read address
    
@@ -70,7 +67,10 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    // Your logic reads from this fifo.
    //
    logic [7:0] 		       fInPlainByte;  // data from the input fifo
-   assign fInPlainByte[7] = preambleDone ? (messageDone ? fInPlainByte[7] : 1) : 0;
+//   assign fInPlainByte[7] = preambleDone ? (messageDone ? fInPlainByte[7] : 1) : 0;
+   // keep fInPlainByte, mod it to another wire
+   logic [7:0] MSB;
+   assign MSB = preambleDone ? (messageDone ? fInPlainByte[7] : 1) : 0;
  		       
    fifo fm (
 	    .rdDat(fInPlainByte),              // data from the FIFO                        --- output
@@ -101,7 +101,7 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    // TODO: write an expression for encryptByte
    // TODO: for example:
    // TODO: assign encryptByte = {         };
-   assign encryptByte = {fInPlainByte[7:5], fInPlainByte[4:0] ^ LFSR};
+   assign encryptByte = {MSB, fInPlainByte[6:5], fInPlainByte[4:0] ^ LFSR};
 
    always_ff @(posedge clk) begin
       

@@ -16,6 +16,7 @@ module seqsm
    input logic fInValid,
    input logic preambleDone,
    input logic encRqst,
+   input logic messageDone,
 
    input logic clk,
    input logic rst
