@@ -9,7 +9,8 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    output logic [7:0]   encryptByte,   // encrypted byte output
    output logic         preambleDone,  // guess
    output logic         byteCount,
-   output logic         fInValid;   
+   output logic         fInValid,
+   output logic         messageDone,
 
    input logic          seed_en,       // guess
    input logic          taps_en,       // suggested in lab4.sv
@@ -20,7 +21,7 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    input logic          lfsr_en,       // controlling from init_lfsr in seqsm.sv
    input logic          incByteCount,
    input logic          load_LFSR,
-   input logic          incadd;
+   input logic          incadd,
    input logic          getNext,       // input from lab4
 
 
@@ -47,8 +48,10 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    logic [3:0] preambleLength;
    logic [4:0] start_LFSR;
    logic seed;
+   logic preambleDone;
+   logic messageDone;
 
-//   logic [AW-1:0] 	       raddr;    // memory read address
+   logic [AW-1:0] 	       raddr;    // memory read address
    
    // TODO: control the raddr
    // TODO: there are many ways you can do this.
@@ -59,12 +62,15 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    // TODO: or you can drive raddr from your state machine directly since its only 2 bits it
    // TODO: isn't alot of wires
 
+   assign raddr = incadd ? raddr + 1 : raddr;
+
    //
    // FIFO
    // This fifo takes data from the outside (testbench) and captures it
    // Your logic reads from this fifo.
    //
    logic [7:0] 		       fInPlainByte;  // data from the input fifo
+   assign fInPlainByte[7] = preambleDone ? (messageDone ? fInPlainByte[7] : 1) : 0;
  		       
    fifo fm (
 	    .rdDat(fInPlainByte),              // data from the FIFO                        --- output
@@ -75,9 +81,10 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
 	    .clk(clk), .rst(rst));             //                                           --- clk / rst signals
    
    // TODO: detect preambleDone
-   assign preambleDone = preambleLength == byteCount;
+   assign preambleDone = preambleLength >= byteCount;
 
    // TODO: detect packet end (i.e. 32 bytes have been processed)
+   assign messageDone = byteCount == 32;
 
    // instantiate the ROM
    dat_mem dm1(.raddr(raddr), .data_out(data_out));
@@ -94,6 +101,7 @@ module lab4_dp #(parameter DW=8, AW=4, lfsr_bitwidth=5) (
    // TODO: write an expression for encryptByte
    // TODO: for example:
    // TODO: assign encryptByte = {         };
+   assign encryptByte = {fInPlainByte[7:5], fInPlainByte[4:0] ^ LFSR};
 
    always_ff @(posedge clk) begin
       

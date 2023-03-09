@@ -10,6 +10,7 @@ module seqsm
    output logic seed_en,
    output logic load_LFSR,
    output logic getNext,
+   output logic done,
 
    input logic byteCount,
    input logic fInValid,
@@ -83,13 +84,14 @@ module seqsm
          end
 
          LoadTaps: begin
-            incadd = 1;
             taps_en = 1;
+            incadd = 1;
             nxtState = LoadSeed;
          end
 
          LoadSeed: begin
             seed_en = 1;
+            incadd = 1;
             nxtState = InitLFSR;
          end
 
@@ -99,27 +101,35 @@ module seqsm
          end
 
          ProcessPreamble: begin
-            incByteCount = 1;
-            getNext = 1;
             if (fInValid) begin          
                // do something turn on enable  signals
-                           lfsr_en = 1;
+               incByteCount = 1;
+               getNext = 1;
+               lfsr_en = 1;
                // 3 more signals, similar in encrypt.
             end 
             if (preambleDone) begin
-               nxtState = Encrypt;       // if preambledone
+               nxtState = Encrypt;       // if preambleDone
             end else begin
                nxtState = ProcessPreamble;          // else stay in state
             end
          end
 
          Encrypt: begin // same thing as above but  different signals -> preambleDone (messageDone)
-            getNext =  1;
-            lfsr_en = 1;
+            if (fInValid) begin          
+               incByteCount = 1;
+               getNext = 1;
+               lfsr_en = 1;
+            end 
+            if (messageDone) begin
+               nxtState = Done;       // if preambleDone
+            end else begin
+               nxtState = Encrypt;          // else stay in state
+            end
          end
 
          Done: begin
-            
+            done = 1;
          end
 
       endcase
