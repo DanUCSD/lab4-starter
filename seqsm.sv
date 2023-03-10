@@ -11,9 +11,8 @@ module seqsm
    output logic load_LFSR,
    output logic getNext,
    output logic done,
-   output logic validOut;
+   output logic validOut,
 
-   input logic byteCount,
    input logic fInValid,
    input logic preambleDone,
    input logic encRqst,
@@ -22,35 +21,6 @@ module seqsm
    input logic clk,
    input logic rst
    );
-
-
-   // TODO: define your states
-   // TODO: here is one suggestion, but you can implmenet any number of states
-   // TODO: you like
-   // TODO: typedef enum {
-   // TODO:		 Idle, LoadPreamble, LoadTaps, LoadSeed, InitLFSR, 
-   // TODO:		 ProcessPreamble, Encrypt, Done
-   // TODO:		 } states_t;
-   // TODO: for example
-   // TODO:  1: Idle -> encrypt request input. 
-   // TODO:  2: LoadPreamble (read the preamble from the ROM and capture it in some registers) ->
-   // TODO:  3: LoadTaps (read the taps from the ROM and capture it in some registers) ->
-   // TODO:  4: LoadSeed (read the seed from the ROM and capture it in some registers) ->
-   // TODO:  5: InitLFSR (load the LFSR with the taps and seed) ->
-   // TODO:  6: ProcessPreamble (encrypt preamble until byteCount is the same as preamble length) ->
-   // TODO:  7: Encrypt rest of packet until byteCount == 32 (max packet length)
-   // TODO:  8: Done
-   // TODO:
-   // TODO: implement your state machine
-   // TODO:
-   // TODO: sequential part
-   // TODO: always_ff @(posedge clk) begin 
-   // TODO:     . . .
-   // TODO: end
-   // TODO:
-   // TODO: always_comb begin
-   // TODO:     . . .
-   // TODO: end
 
    typedef enum {
                  Idle, LoadPreamble, LoadTaps, LoadSeed, InitLFSR,
@@ -68,8 +38,16 @@ module seqsm
      end 
 
    always_comb begin
-
-      validOut = 0;
+    incadd = 0;
+	lfsr_en = 0; 
+	incByteCount = 0;
+	prelenen = 0;
+	taps_en = 0;
+	seed_en = 0;
+	load_LFSR = 0;
+	getNext = 0;
+	done = 0;
+	validOut = 0;
 
       unique case (curState) 
 
@@ -106,21 +84,19 @@ module seqsm
 
          ProcessPreamble: begin
             if (fInValid) begin          
-               // do something turn on enable  signals
                incByteCount = 1;
                getNext = 1;
                lfsr_en = 1;
                validOut = 1;
-               // 3 more signals, similar in encrypt.
             end 
             if (preambleDone) begin
-               nxtState = Encrypt;       // if preambleDone
+               nxtState = Encrypt;  
             end else begin
-               nxtState = ProcessPreamble;          // else stay in state
+               nxtState = ProcessPreamble; 
             end
          end
 
-         Encrypt: begin // same thing as above but  different signals -> preambleDone (messageDone)
+         Encrypt: begin
             if (fInValid) begin          
                incByteCount = 1;
                getNext = 1;
@@ -128,14 +104,15 @@ module seqsm
                validOut = 1;
             end 
             if (messageDone) begin
-               nxtState = Done;       // if preambleDone
+               nxtState = Done;
             end else begin
-               nxtState = Encrypt;          // else stay in state
+               nxtState = Encrypt; 
             end
          end
 
          Done: begin
             done = 1;
+           	nxtState = Done;
          end
 
       endcase
